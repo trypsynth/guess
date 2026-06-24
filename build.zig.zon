@@ -1,7 +1,11 @@
 .{
 	.name = .guess,
 	.version = "0.0.1",
-	.minimum_zig_version = "0.17.0-dev.607+456b2ec07",
-	.paths = .{""},
+	.minimum_zig_version = "0.17.0-dev.956+2dca73595",
+	.paths = .{
+		"build.zig",
+		"build.zig.zon",
+		"src",
+	},
 	.fingerprint = 0x32d30f964e668ea8,
 }
