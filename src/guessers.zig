@@ -26,25 +26,30 @@ const guessers = [_]Guesser{
 
 fn guessIpv4(input: []const u8) ?Result {
 	var port: u16 = 0;
+	var confidence: u8 = 100;
 	var ip_part = input;
 	if (std.mem.find(u8, input, ":")) |colon_index| {
 		ip_part = input[0..colon_index];
-		port = std.fmt.parseUnsigned(u16, input[colon_index + 1 ..], 10) catch return null;
+		port = std.fmt.parseUnsigned(u16, input[colon_index + 1 ..], 10) catch blk: {
+			confidence = 60;
+			break :blk 0;
+		};
 	}
 	_ = std.Io.net.Ip4Address.parse(ip_part, port) catch {
 		if (std.mem.countScalar(u8, ip_part, '.') != 3) return null;
-		var confidence: u8 = 100;
 		var octet_iter = std.mem.splitScalar(u8, ip_part, '.');
 		while (octet_iter.next()) |octet| {
 			const val = std.fmt.parseInt(usize, octet, 10) catch |err| switch (err) {
 				error.InvalidCharacter => return null,
 				error.Overflow => std.math.maxInt(usize),
 			};
-			if (val > 255) confidence -= 20;
+			if (val > 255) {
+				confidence -|= 20;
+				if (confidence == 0) return null;
+			}
 		}
-		return Result{ .type = .ipv4, .confidence = confidence };
 	};
-	return Result{ .type = .ipv4, .confidence = 100 };
+	return Result{ .type = .ipv4, .confidence = confidence };
 }
 
 fn guessIpv6(input: []const u8) ?Result {
