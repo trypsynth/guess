@@ -28,7 +28,7 @@ fn guessIpv4(input: []const u8) ?Result {
 	var port: u16 = 0;
 	var confidence: u8 = 100;
 	var ip_part = input;
-	if (std.mem.find(u8, input, ":")) |colon_index| {
+	if (std.mem.findLast(u8, input, ":")) |colon_index| {
 		ip_part = input[0..colon_index];
 		port = std.fmt.parseUnsigned(u16, input[colon_index + 1 ..], 10) catch blk: {
 			confidence = 60;
